@@ -18,7 +18,7 @@ for root, dirs, files in os.walk(directory):
 
 print(data)
 
-# %% plot the data
+# %% helper functions
 
 
 def histogram(data, title, xlabel, ylabel, showDensity=False, bins=None):
@@ -29,17 +29,30 @@ def histogram(data, title, xlabel, ylabel, showDensity=False, bins=None):
     plt.show()
 
 
-# %%
-def d(date, featureName):
+def showHistogramForFeature(date, featureName):
     features = data[data["Date"] == date][featureName]
     title = 'Histogram of ' + featureName + ' on ' + date
     histogram(features, title,
               featureName, 'Density', True)
 
 
+def showHeatmapForFeature(date, featureName):
+    pivottedData = data[data["Date"] == date].pivot(
+        'Latitude', 'Longitude', featureName)
+    plt.imshow(pivottedData, cmap='jet')
+    plt.title('Heatmap of ' + featureName + ' on ' + date)
+    plt.axis('off')
+    plt.show()
+
+
 # %%
 date = '1/1/2014'
 for featureName in data.columns.values[3:]:
-    d(date, featureName)
+    showHistogramForFeature(date, featureName)
+
+# %%
+date = '1/1/2014'
+for featureName in data.columns.values[3:]:
+    showHeatmapForFeature(date, featureName)
 
 # %%
