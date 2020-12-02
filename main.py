@@ -2,6 +2,8 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.tree import DecisionTreeRegressor
 
 # %% read data
 data = None
@@ -36,7 +38,7 @@ def showHistogramForFeature(date, featureName):
               featureName, 'Density', True)
 
 
-def showHeatmapForFeature(date, featureName):
+def showHeatmapForFeature(data, date, featureName):
     pivottedData = data[data["Date"] == date].pivot(
         'Latitude', 'Longitude', featureName)
     plt.imshow(pivottedData, cmap='jet')
@@ -53,6 +55,59 @@ for featureName in data.columns.values[3:]:
 # %%
 date = '1/1/2014'
 for featureName in data.columns.values[3:]:
-    showHeatmapForFeature(date, featureName)
+    showHeatmapForFeature(data, date, featureName)
 
-# %%
+# %% KNN
+features = data.columns.values[3:]
+date = '2013'
+featureName = 'Solar'
+
+dataOnDate = data[data["Date"].str[-4:] == date]
+
+classifier = KNeighborsRegressor(n_neighbors=10)
+classifier.fit(
+    dataOnDate[features[features != featureName]], dataOnDate[featureName])
+
+date = '7/7/2014'
+dataOnDate = data[data["Date"] == date]
+
+showHeatmapForFeature(dataOnDate, date, 'Solar')
+
+predicted = dataOnDate[['Date', 'Longitude', 'Latitude']]
+predicted['Solar'] = classifier.predict(
+    dataOnDate[features[features != featureName]])
+showHeatmapForFeature(predicted, date, 'Solar')
+
+dataOnDate = data[data["Date"] == date]
+
+offset = dataOnDate[['Date', 'Longitude', 'Latitude']]
+offset['Solar'] = abs(dataOnDate['Solar'] - predicted['Solar'])
+showHeatmapForFeature(offset, date, 'Solar')
+
+
+# %% Decision Tree
+features = data.columns.values[3:]
+date = '2013'
+featureName = 'Solar'
+
+dataOnDate = data[data["Date"].str[-4:] == date]
+
+classifier = DecisionTreeRegressor()
+classifier.fit(
+    dataOnDate[features[features != featureName]], dataOnDate[featureName])
+
+date = '7/7/2014'
+dataOnDate = data[data["Date"] == date]
+
+showHeatmapForFeature(dataOnDate, date, 'Solar')
+
+predicted = dataOnDate[['Date', 'Longitude', 'Latitude']]
+predicted['Solar'] = classifier.predict(
+    dataOnDate[features[features != featureName]])
+showHeatmapForFeature(predicted, date, 'Solar')
+
+dataOnDate = data[data["Date"] == date]
+
+offset = dataOnDate[['Date', 'Longitude', 'Latitude']]
+offset['Solar'] = abs(dataOnDate['Solar'] - predicted['Solar'])
+showHeatmapForFeature(offset, date, 'Solar')
