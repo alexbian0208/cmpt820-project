@@ -71,19 +71,20 @@ classifier.fit(
 date = '7/7/2014'
 dataOnDate = data[data["Date"] == date]
 
-showHeatmapForFeature(dataOnDate, date, 'Solar')
+showHeatmapForFeature(dataOnDate, date, featureName)
 
 predicted = dataOnDate[['Date', 'Longitude', 'Latitude']]
-predicted['Solar'] = classifier.predict(
+predicted[featureName] = classifier.predict(
     dataOnDate[features[features != featureName]])
-showHeatmapForFeature(predicted, date, 'Solar')
+showHeatmapForFeature(predicted, date, featureName)
 
 dataOnDate = data[data["Date"] == date]
 
 offset = dataOnDate[['Date', 'Longitude', 'Latitude']]
-offset['Solar'] = abs(dataOnDate['Solar'] - predicted['Solar'])
-showHeatmapForFeature(offset, date, 'Solar')
+offset[featureName] = abs(dataOnDate[featureName] - predicted[featureName])
+showHeatmapForFeature(offset, date, featureName)
 
+classifier.score(dataOnDate[features[features != featureName]], dataOnDate[featureName])
 
 # %% Decision Tree
 features = data.columns.values[3:]
@@ -99,15 +100,18 @@ classifier.fit(
 date = '7/7/2014'
 dataOnDate = data[data["Date"] == date]
 
-showHeatmapForFeature(dataOnDate, date, 'Solar')
+showHeatmapForFeature(dataOnDate, date, featureName)
 
 predicted = dataOnDate[['Date', 'Longitude', 'Latitude']]
-predicted['Solar'] = classifier.predict(
+predicted[featureName] = classifier.predict(
     dataOnDate[features[features != featureName]])
-showHeatmapForFeature(predicted, date, 'Solar')
+showHeatmapForFeature(predicted, date, featureName)
 
 dataOnDate = data[data["Date"] == date]
 
 offset = dataOnDate[['Date', 'Longitude', 'Latitude']]
-offset['Solar'] = abs(dataOnDate['Solar'] - predicted['Solar'])
-showHeatmapForFeature(offset, date, 'Solar')
+offset[featureName] = abs(dataOnDate[featureName] - predicted[featureName])
+showHeatmapForFeature(offset, date, featureName)
+
+classifier.score(dataOnDate[features[features != featureName]], dataOnDate[featureName])
+# %%
