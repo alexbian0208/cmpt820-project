@@ -4,6 +4,9 @@ import matplotlib.pyplot as plt
 import os
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.tree import DecisionTreeRegressor
+from sklearn.linear_model import BayesianRidge
+from sklearn.mixture import GaussianMixture
+from sklearn.svm import SVR
 
 # %% read data
 data = None
@@ -64,7 +67,7 @@ featureName = 'Solar'
 
 dataOnDate = data[data["Date"].str[-4:] == date]
 
-classifier = KNeighborsRegressor(n_neighbors=10)
+classifier = KNeighborsRegressor(n_neighbors=6, weights='distance')
 classifier.fit(
     dataOnDate[features[features != featureName]], dataOnDate[featureName])
 
@@ -94,6 +97,92 @@ featureName = 'Solar'
 dataOnDate = data[data["Date"].str[-4:] == date]
 
 classifier = DecisionTreeRegressor()
+classifier.fit(
+    dataOnDate[features[features != featureName]], dataOnDate[featureName])
+
+date = '7/7/2014'
+dataOnDate = data[data["Date"] == date]
+
+showHeatmapForFeature(dataOnDate, date, featureName)
+
+predicted = dataOnDate[['Date', 'Longitude', 'Latitude']]
+predicted[featureName] = classifier.predict(
+    dataOnDate[features[features != featureName]])
+showHeatmapForFeature(predicted, date, featureName)
+
+dataOnDate = data[data["Date"] == date]
+
+offset = dataOnDate[['Date', 'Longitude', 'Latitude']]
+offset[featureName] = abs(dataOnDate[featureName] - predicted[featureName])
+showHeatmapForFeature(offset, date, featureName)
+
+classifier.score(dataOnDate[features[features != featureName]], dataOnDate[featureName])
+# %% BayesianRidge
+features = data.columns.values[3:]
+date = '2013'
+featureName = 'Solar'
+
+dataOnDate = data[data["Date"].str[-4:] == date]
+
+classifier = BayesianRidge()
+classifier.fit(
+    dataOnDate[features[features != featureName]], dataOnDate[featureName])
+
+date = '7/7/2014'
+dataOnDate = data[data["Date"] == date]
+
+showHeatmapForFeature(dataOnDate, date, featureName)
+
+predicted = dataOnDate[['Date', 'Longitude', 'Latitude']]
+predicted[featureName] = classifier.predict(
+    dataOnDate[features[features != featureName]])
+showHeatmapForFeature(predicted, date, featureName)
+
+dataOnDate = data[data["Date"] == date]
+
+offset = dataOnDate[['Date', 'Longitude', 'Latitude']]
+offset[featureName] = abs(dataOnDate[featureName] - predicted[featureName])
+showHeatmapForFeature(offset, date, featureName)
+
+classifier.score(dataOnDate[features[features != featureName]], dataOnDate[featureName])
+# %% GaussianMixture
+features = data.columns.values[3:]
+date = '2013'
+featureName = 'Solar'
+
+dataOnDate = data[data["Date"].str[-4:] == date]
+
+classifier = GaussianMixture(n_components=6,init_params='random')
+classifier.fit(
+    dataOnDate[features[features != featureName]], dataOnDate[featureName])
+
+date = '7/7/2014'
+dataOnDate = data[data["Date"] == date]
+
+showHeatmapForFeature(dataOnDate, date, featureName)
+
+predicted = dataOnDate[['Date', 'Longitude', 'Latitude']]
+predicted[featureName] = classifier.predict(
+    dataOnDate[features[features != featureName]])
+showHeatmapForFeature(predicted, date, featureName)
+
+dataOnDate = data[data["Date"] == date]
+
+offset = dataOnDate[['Date', 'Longitude', 'Latitude']]
+offset[featureName] = abs(dataOnDate[featureName] - predicted[featureName])
+showHeatmapForFeature(offset, date, featureName)
+
+classifier.score(dataOnDate[features[features != featureName]], dataOnDate[featureName])
+# %% SVM
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
+features = data.columns.values[3:]
+date = '2013'
+featureName = 'Solar'
+
+dataOnDate = data[data["Date"].str[-4:] == date]
+
+classifier = SVR(epsilon=0.05)
 classifier.fit(
     dataOnDate[features[features != featureName]], dataOnDate[featureName])
 
